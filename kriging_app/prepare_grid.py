@@ -1,6 +1,9 @@
 import geopandas as gpd
 from shapely import Point, within, unary_union
-from config import config
+
+import json
+with open('./config.json', 'r') as f: 
+    config = json.load(f)
 
 
 def generate_request_grid(minx, miny, lon_span, lat_span): 
