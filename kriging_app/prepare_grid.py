@@ -1,4 +1,5 @@
 import geopandas as gpd
+from math import sqrt
 from shapely import Point, within, unary_union
 
 import json
@@ -10,7 +11,6 @@ def generate_request_grid(minx, miny, lon_span, lat_span):
     unit_length = config['unit_length']
     coords = []
     startx1, starty1 = (lon_span % unit_length) / 2 + minx, (lat_span % (unit_length * sqrt(3))) / 2 + miny
-    print(startx1, starty1)
     startx2, starty2 = startx1 + unit_length / 2, starty1 + unit_length * sqrt(3) / 2
     xspan1, yspan1 = int(lon_span // unit_length) + 1, int(lat_span // (unit_length * sqrt(3))) + 1
     xspan2, yspan2 = int((lon_span - lon_span % unit_length - unit_length / 2) // unit_length) + 1, int((lat_span - lat_span % (unit_length * sqrt(3)) - unit_length / 2 * sqrt(3)) // (unit_length * sqrt(3))) + 1

@@ -23,7 +23,7 @@ def main():
     temps = []
     for i, coord in enumerate(buf_coords.geometry): 
         temp = get_temp(coord.x, coord.y)
-        logging.debug(f"[{datetime.now().strftime(r'%d/%m%Y %H:%M:%S')}]: {i+1} of {n}")
+        print(f"[{datetime.now().strftime(r'%d/%m/%Y %H:%M:%S')}]: {i+1} of {n}")
         temps.append(temp['current']['temperature_2m'])
     buf_coords['temperature'] = temps
     temp_gdf = buf_coords.to_crs(config['crs'])

@@ -8,7 +8,7 @@ with open('./config.json', 'r') as f:
 
 
 def main(): 
-    temp_gdf = gpd.read_file('../data/temperature_data.json').to_crs(config['crs'])
+    temp_gdf = gpd.read_file('../data/temperature_data.json')
     
     x = temp_gdf.geometry.apply(lambda geom: geom.x)
     y = temp_gdf.geometry.apply(lambda geom: geom.y)
@@ -25,7 +25,10 @@ def main():
     
     xx, yy = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
     field = ok.transform(xx.flatten(), yy.flatten()).reshape(xx.shape)
-    return {"coord_x": x.tolist(), "coord_y": y.tolist(), "temperature": field.T}
+    temp_gdf.to_crs(4326, inplace=True)
+    return {"coord_x": temp_gdf.geometry.apply(lambda geom: geom.x).tolist(), 
+            "coord_y": temp_gdf.geometry.apply(lambda geom: geom.y).tolist(), 
+            "temperature": field.T}
 
 
 if __name__ == '__main__': 
