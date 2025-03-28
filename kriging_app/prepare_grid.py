@@ -3,7 +3,7 @@ from math import sqrt
 from shapely import Point, within, unary_union
 
 import json
-with open('./config.json', 'r') as f: 
+with open('./kriging_app/config.json', 'r') as f: 
     config = json.load(f)
 
 
@@ -25,9 +25,9 @@ def generate_request_grid(minx, miny, lon_span, lat_span):
 
 def main(): 
     coords = generate_request_grid(config['minx'], config['miny'], config['lon_span'], config['lat_span'])
-    gdf = gpd.read_file('../data/Buffalo_CS.shp')
+    gdf = gpd.read_file('./data/Buffalo_CS.shp')
     buf_coords = coords[within(coords, unary_union(gdf.geometry.tolist()))]
-    buf_coords.to_file('../data/temp_request_grid.json', driver='GeoJSON')
+    buf_coords.to_file('./data/temp_request_grid.json', driver='GeoJSON')
 
 
 if __name__ == '__main__': 

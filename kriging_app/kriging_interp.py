@@ -3,12 +3,12 @@ import skgstat as skg
 import numpy as np
 
 import json
-with open('./config.json', 'r') as f: 
+with open('./kriging_app/config.json', 'r') as f: 
     config = json.load(f)
 
 
 def main(): 
-    temp_gdf = gpd.read_file('../data/temperature_data.json')
+    temp_gdf = gpd.read_file('./data/temperature_data.json')
     
     x = temp_gdf.geometry.apply(lambda geom: geom.x)
     y = temp_gdf.geometry.apply(lambda geom: geom.y)

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Full Page Embed</title>
+    <meta http-equiv="refresh" content="180"> <!-- Refresh entire page every 180 seconds -->
+    <style>
+        /* Reset margins and padding to eliminate spacing */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        /* Make the iframe fill the entire page */
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+    <script>
+        function reloadIframe() {
+            document.getElementById("iframe").src = document.getElementById("iframe").src; // Reload the iframe
+        }
+
+        // Refresh iframe content every 180 seconds
+        setInterval(reloadIframe, 180000);
+    </script>
+</head>
+<body>
+    <!-- Full-screen iframe -->
+    <iframe id="iframe" src="/raster_map"></iframe>
+</body>
+</html>

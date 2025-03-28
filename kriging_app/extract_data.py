@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 
 import json
-with open('./config.json', 'r') as f: 
+with open('./kriging_app/config.json', 'r') as f: 
     config = json.load(f)
 
 
@@ -18,7 +18,7 @@ def get_temp(x, y):
 
 
 def main(): 
-    buf_coords = gpd.read_file('../data/temp_request_grid.json')
+    buf_coords = gpd.read_file('./data/temp_request_grid.json')
     n = buf_coords.shape[0]
     temps = []
     for i, coord in enumerate(buf_coords.geometry): 
@@ -27,12 +27,12 @@ def main():
         temps.append(temp['current']['temperature_2m'])
     buf_coords['temperature'] = temps
     temp_gdf = buf_coords.to_crs(config['crs'])
-    temp_gdf.to_file('../data/temperature_data.json', driver='GeoJSON')
+    temp_gdf.to_file('./data/temperature_data.json', driver='GeoJSON')
 
 
 if __name__ == '__main__': 
     logging.basicConfig(level='DEBUG')
-    buf_coords = gpd.read_file('../data/temp_request_grid.json')
+    buf_coords = gpd.read_file('./data/temp_request_grid.json')
     logging.info("START")
     n = buf_coords.shape[0]
     temps = []
@@ -42,5 +42,5 @@ if __name__ == '__main__':
         temps.append(temp['current']['temperature_2m'])
     buf_coords['temperature'] = temps
     temp_gdf = buf_coords.to_crs(config['crs'])
-    temp_gdf.to_file('../data/temperature_data.json', driver='GeoJSON')
+    temp_gdf.to_file('./data/temperature_data.json', driver='GeoJSON')
 
