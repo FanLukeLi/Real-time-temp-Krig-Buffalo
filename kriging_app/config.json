@@ -12,5 +12,6 @@
     "normalize": 0, 
     "min_points": 5, 
     "max_points": 15, 
-    "mode": "exact"
+    "mode": "exact", 
+    "interval": 180
 }

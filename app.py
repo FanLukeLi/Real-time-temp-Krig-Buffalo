@@ -5,6 +5,10 @@ from kriging_app.extract_data import main as extract_data
 from kriging_app.kriging_interp import main as kriging_interp
 from kriging_app.visualize import main as visualize
 
+import json
+with open('./kriging_app/config.json', 'r') as f: 
+    config = json.load(f)
+
 app = Flask(__name__)
 
 # Path to HTML file (make sure this file is in the 'templates' folder)
@@ -20,7 +24,7 @@ def reload_homepage():
     while True:
         print("Making new map...")
         threading.Thread(target=make_map).start()
-        time.sleep(180)  # Wait for 1 hour before reloading again
+        time.sleep(config['interval'])  # Wait for 1 hour before reloading again
 
 # Start the reload thread
 threading.Thread(target=reload_homepage, daemon=True).start()
