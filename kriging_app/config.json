@@ -1,0 +1,17 @@
+{
+    "minx": 322992.3738095698, 
+    "miny": 313875.31531681423, 
+    "maxx": 332684.1525295905,  
+    "maxy": 329493.07002905954, 
+    "lon_span": 9691.778720020666, 
+    "lat_span": 15617.75471224531, 
+    "unit_length": 1140, 
+    "crs": 32117, 
+    "maxlag": "median", 
+    "n_lags": 10, 
+    "normalize": 0, 
+    "min_points": 5, 
+    "max_points": 15, 
+    "mode": "exact", 
+    "interval": 180
+}
