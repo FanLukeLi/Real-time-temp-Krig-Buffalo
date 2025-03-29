@@ -5,9 +5,11 @@ pipeline {
             steps {
                 echo 'Building...'
                 echo 'Preparing data extraction grid...'
-                cd ./kriging_app/realtime_krig
-                python prepare_grid.py
-                cd ../..
+                sh '''
+                    cd ./kriging_app/realtime_krig
+                    python prepare_grid.py
+                    cd ../..
+                    '''
             }
         }
         stage('Test') {
