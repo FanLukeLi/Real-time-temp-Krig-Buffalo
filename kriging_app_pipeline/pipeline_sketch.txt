@@ -1,0 +1,5 @@
+stages of the pipeline: 
+    prepare grid <- prepare_grid.py
+    build docker image <- current datetime as id
+    register image <- GitHub Container Registry (Free tier)
+    deploy <- Azure Kubernetes Service
