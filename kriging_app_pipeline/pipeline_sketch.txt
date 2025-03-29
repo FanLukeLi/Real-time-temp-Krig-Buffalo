@@ -1,5 +1,17 @@
 stages of the pipeline: 
-    prepare grid <- prepare_grid.py
     build docker image <- current datetime as id
     register image <- GitHub Container Registry (Free tier)
     deploy <- Azure Kubernetes Service
+
+    [3/29/2025]: the pipeline plan changed to the following, because integrating a python environment to prepare data for the app
+                 to the Jenkins server is not efficient
+        build: 
+            build docker image: 
+                from conda image
+                copy kriging_app folder
+                building environment
+                run prepare_grid.py
+                deploy app
+        deploy: 
+            register docker image to ghcr
+            deploy with AKS

@@ -2,22 +2,12 @@ pipeline {
     agent any
     stages {
         stage('Build') {
-            // when {
-            //     changeset "./kriging_app/realtime_krig/config.json"
-            // }
+            when {
+                changeset "./kriging_app/*"
+            }
             steps {
                 echo 'Building...'
-                echo 'Preparing data extraction grid...'
-                sh '''
-                    cd ./kriging_app/realtime_krig
-                    python prepare_grid.py
-                    cd ../..
-                    '''
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing...'
+                echo 'Building docker image'
             }
         }
         stage('Deploy') {
