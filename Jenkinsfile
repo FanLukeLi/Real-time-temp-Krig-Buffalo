@@ -2,6 +2,9 @@ pipeline {
     agent any
     stages {
         stage('Build') {
+            when {
+                changeset "./kriging_app/realtime_krig/config.json*"
+            }
             steps {
                 echo 'Building...'
                 echo 'Preparing data extraction grid...'
