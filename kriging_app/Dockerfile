@@ -1,7 +1,12 @@
 FROM continuumio/anaconda3:latest
 
-WORKDIR /kriging_app_v1
+WORKDIR /kriging_app
 
-COPY data, kriging_app, result, /kriging_app_v1/
+COPY kriging_app, /kriging_app/
 
 RUN conda env create -f environment.yml
+
+RUN conda run -n kriging_app
+
+EXPOSE 8086
+
