@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') {
             when {
-                changeset "/kriging_app/**"
+                changeset "kriging_app/**"
             }
             steps {
                 echo 'Building...'
