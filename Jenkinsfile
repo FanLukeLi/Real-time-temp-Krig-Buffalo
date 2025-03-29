@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build') {
             when {
-                changeset "./kriging_app/realtime_krig/config.json*"
+                changeset "./kriging_app/realtime_krig/config.json"
             }
             steps {
                 echo 'Building...'
