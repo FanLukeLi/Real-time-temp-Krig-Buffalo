@@ -28,7 +28,9 @@ def main():
     gdf = gpd.read_file('./data/Buffalo_CS.shp')
     buf_coords = coords[within(coords, unary_union(gdf.geometry.tolist()))]
     buf_coords.to_file('./data/temp_request_grid.json', driver='GeoJSON')
+    print('Sampling grid saved to temp_request_grid.json')
 
 
 if __name__ == '__main__': 
-    main()
+    # main()
+    pass
