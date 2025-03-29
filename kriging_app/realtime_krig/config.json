@@ -13,5 +13,5 @@
     "min_points": 5, 
     "max_points": 15, 
     "mode": "exact", 
-    "interval": 210
+    "interval": 180
 }
