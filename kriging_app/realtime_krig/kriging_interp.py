@@ -3,7 +3,7 @@ import skgstat as skg
 import numpy as np
 
 import json
-with open('./kriging_app/config.json', 'r') as f: 
+with open('./config.json', 'r') as f: 
     config = json.load(f)
 
 

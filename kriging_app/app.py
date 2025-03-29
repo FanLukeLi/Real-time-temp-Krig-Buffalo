@@ -1,12 +1,12 @@
 import threading
 import time
 from flask import Flask, render_template
-from kriging_app.extract_data import main as extract_data
-from kriging_app.kriging_interp import main as kriging_interp
-from kriging_app.visualize import main as visualize
+from realtime_krig.extract_data import main as extract_data
+from realtime_krig.kriging_interp import main as kriging_interp
+from realtime_krig.visualize import main as visualize
 
 import json
-with open('./kriging_app/config.json', 'r') as f: 
+with open('./realtime_krig/config.json', 'r') as f: 
     config = json.load(f)
 
 app = Flask(__name__)

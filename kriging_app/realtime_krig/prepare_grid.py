@@ -3,7 +3,7 @@ from math import sqrt
 from shapely import Point, within, unary_union
 
 import json
-with open('./kriging_app/config.json', 'r') as f: 
+with open('./config.json', 'r') as f: 
     config = json.load(f)
 
 

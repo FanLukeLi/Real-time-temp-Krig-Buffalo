@@ -9,7 +9,7 @@ from osgeo import gdal, osr
 from datetime import datetime
 
 import json
-with open('./kriging_app/config.json', 'r') as f: 
+with open('./config.json', 'r') as f: 
     config = json.load(f)
 
 
@@ -69,9 +69,9 @@ def main(x, y, temps):
 
 
 if __name__ == '__main__': 
-    from prepare_grid import main as prepare_grid
-    from extract_data import main as extract_data
-    from kriging_interp import main as kriging_interp
+    from kriging_app.realtime_krig.prepare_grid import main as prepare_grid
+    from kriging_app.realtime_krig.extract_data import main as extract_data
+    from kriging_app.realtime_krig.kriging_interp import main as kriging_interp
     # print("Prepare grid")
     # prepare_grid()
     # print("Extract data")
