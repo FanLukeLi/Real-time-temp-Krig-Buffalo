@@ -15,3 +15,16 @@ stages of the pipeline:
         deploy: 
             register docker image to ghcr
             deploy with AKS
+
+    [3/30/2025]: the pipeline changed to the following, because open-meteo API has access limit in free tier, deploying multiple
+                 workers or replicas of the container will exceed the limit, in future builds, there will be one app collecting 
+                 the data from open-meteo, but multiple workers or K8s pods for map access (frontend)
+        build: 
+            build docker image: 
+                from conda image
+                copy kriging_app folder
+                building environment
+                run prepare_grid.py
+                deploy app
+        deploy: 
+            register docker image to ghcr
