@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 
 import json
-with open('./config.json', 'r') as f: 
+with open('./realtime_krig/config.json', 'r') as f: 
     config = json.load(f)
 
 
