@@ -4,11 +4,11 @@ WORKDIR /kriging_app
 
 COPY . /kriging_app/
 
-COPY environment.yml .
-
 RUN conda env create -f environment.yml
 
-RUN conda run -n kriging_app python ./realtime_krig/make_initial_map.py
+RUN conda run -n kriging_app ./realtime_krig/make_initial_map.py
+
+RUN chmod 777 ./resulst/raster_map.html
 
 EXPOSE 8086
 

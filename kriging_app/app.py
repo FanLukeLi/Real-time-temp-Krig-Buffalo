@@ -16,8 +16,11 @@ html_file_path = 'homepage.html'
 
 def make_map(): 
     extract_data()
+    print('Interpolating...')
     res = kriging_interp()
+    print('Visualizing...')
     visualize(res['coord_x'], res['coord_y'], res['temperature'])
+    print('New map created')
 
 # Function to reload homepage
 def reload_homepage():

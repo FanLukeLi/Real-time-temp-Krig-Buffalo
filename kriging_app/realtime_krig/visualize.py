@@ -69,9 +69,9 @@ def main(x, y, temps):
 
 
 if __name__ == '__main__': 
-    from kriging_app.realtime_krig.prepare_grid import main as prepare_grid
-    from kriging_app.realtime_krig.extract_data import main as extract_data
-    from kriging_app.realtime_krig.kriging_interp import main as kriging_interp
+    # from kriging_app.realtime_krig.prepare_grid import main as prepare_grid
+    # from kriging_app.realtime_krig.extract_data import main as extract_data
+    from kriging_interp import main as kriging_interp
     # print("Prepare grid")
     # prepare_grid()
     # print("Extract data")
