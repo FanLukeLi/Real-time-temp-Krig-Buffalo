@@ -8,7 +8,7 @@ RUN conda env create -f environment.yml
 
 RUN conda run -n kriging_app ./realtime_krig/make_initial_map.py
 
-RUN chmod 777 ./resulst/raster_map.html
+RUN chmod 777 ./result/raster_map.html
 
 EXPOSE 8086
 
