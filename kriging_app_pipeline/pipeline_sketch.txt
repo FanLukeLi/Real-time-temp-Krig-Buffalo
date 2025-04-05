@@ -28,3 +28,10 @@ stages of the pipeline:
                 deploy app
         deploy: 
             register docker image to ghcr
+
+    [4/5/2025]: In docker image, added command to run the CMD as root, because of this change, the raster_map.html can be updated 
+                by threads in the app. The next steps are: 
+        - Changing the color map to make sure the same color for the same temperature
+        - Integrating the build of docker image to Jenkins pipeline
+        - Work out using Terraform to register image to ghcr and deploy with Azure webapp
+        - Deploying the current app to Kubernetes can lead to asynchronous updates of the app
