@@ -12,7 +12,8 @@ def get_temp(x, y):
     response = requests.get("https://api.open-meteo.com/v1/forecast", params={
         "latitude": y, 
         "longitude": x, 
-        "current": "temperature_2m"
+        "current": "temperature_2m", 
+        "temperature_unit": "fahrenheit"
     }, timeout=10)
     return response.json()
 

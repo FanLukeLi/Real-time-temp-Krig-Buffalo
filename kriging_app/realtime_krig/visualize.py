@@ -45,9 +45,11 @@ def main(x, y, temps):
     
     colormap = branca.colormap.LinearColormap(
         colors=['blue', 'green', 'yellow', 'red'], 
-        vmin=temperature_field.min(), 
-        vmax=temperature_field.max(), 
-        caption='Temerature (℃)'
+        # vmin=temperature_field.min(), 
+        vmin=0, 
+        # vmax=temperature_field.max(), 
+        vmax=100, 
+        caption='Temerature (℉)'
     )
 
     # create_geotiff(latitudes=latitudes, longitudes=longitudes, temperature_field=temperature_field)
