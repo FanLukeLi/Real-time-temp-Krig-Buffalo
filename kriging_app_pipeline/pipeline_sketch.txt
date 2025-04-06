@@ -35,3 +35,9 @@ stages of the pipeline:
         - Integrating the build of docker image to Jenkins pipeline
         - Work out using Terraform to register image to ghcr and deploy with Azure webapp
         - Deploying the current app to Kubernetes can lead to asynchronous updates of the app
+
+    [4/6/2025]: Building the image in Jenkins pipeline requires running docker agent in Jenkins network. To the repo owner's system, 
+                it means running docker in docker, which is not recommended by docker official
+        - Color map changed to same color for the same temperature
+        - Integrated the build of docker image to GitHub Action
+        - Working on using Terraform to register image to ghcr and deploy with Azure webapp
