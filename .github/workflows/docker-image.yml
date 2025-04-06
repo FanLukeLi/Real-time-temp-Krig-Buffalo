@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "basic-kriging", "basic-app-pipe" ]
+    branches: [ "basic-kriging/kriging_app/*", "basic-app-pipe/kriging_app/*" ]
 
 jobs:
 
@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file ./kriging_app/Dockerfile --tag basic-kriging-app:$(date +%s)
+      run: docker build . --file Dockerfile --tag basic-kriging-app:$(date +%s)
