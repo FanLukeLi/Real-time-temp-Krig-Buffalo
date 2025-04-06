@@ -1,9 +1,10 @@
 import geopandas as gpd
+import pyproj
 from math import sqrt
 from shapely import Point, within, unary_union
 
 import json
-with open('./config.json', 'r') as f: 
+with open('./realtime_krig/config.json', 'r') as f: 
     config = json.load(f)
 
 
@@ -28,6 +29,7 @@ def main():
     gdf = gpd.read_file('./data/Buffalo_CS.shp')
     buf_coords = coords[within(coords, unary_union(gdf.geometry.tolist()))]
     buf_coords.to_file('./data/temp_request_grid.json', driver='GeoJSON')
+    print('Sampling grid saved to temp_request_grid.json')
 
 
 if __name__ == '__main__': 

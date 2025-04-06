@@ -1,5 +1,37 @@
 stages of the pipeline: 
-    prepare grid <- prepare_grid.py
     build docker image <- current datetime as id
     register image <- GitHub Container Registry (Free tier)
     deploy <- Azure Kubernetes Service
+
+    [3/29/2025]: the pipeline plan changed to the following, because integrating a python environment to prepare data for the app
+                 to the Jenkins server is not efficient
+        build: 
+            build docker image: 
+                from conda image
+                copy kriging_app folder
+                building environment
+                run prepare_grid.py
+                deploy app
+        deploy: 
+            register docker image to ghcr
+            deploy with AKS
+
+    [3/30/2025]: the pipeline changed to the following, because open-meteo API has access limit in free tier, deploying multiple
+                 workers or replicas of the container will exceed the limit, in future builds, there will be one app collecting 
+                 the data from open-meteo, but multiple workers or K8s pods for map access (frontend)
+        build: 
+            build docker image: 
+                from conda image
+                copy kriging_app folder
+                building environment
+                run prepare_grid.py
+                deploy app
+        deploy: 
+            register docker image to ghcr
+
+    [4/5/2025]: In docker image, added command to run the CMD as root, because of this change, the raster_map.html can be updated 
+                by threads in the app. The next steps are: 
+        - Changing the color map to make sure the same color for the same temperature
+        - Integrating the build of docker image to Jenkins pipeline
+        - Work out using Terraform to register image to ghcr and deploy with Azure webapp
+        - Deploying the current app to Kubernetes can lead to asynchronous updates of the app

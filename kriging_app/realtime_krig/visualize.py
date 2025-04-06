@@ -9,7 +9,7 @@ from osgeo import gdal, osr
 from datetime import datetime
 
 import json
-with open('./config.json', 'r') as f: 
+with open('./realtime_krig/config.json', 'r') as f: 
     config = json.load(f)
 
 
@@ -45,9 +45,11 @@ def main(x, y, temps):
     
     colormap = branca.colormap.LinearColormap(
         colors=['blue', 'green', 'yellow', 'red'], 
-        vmin=temperature_field.min(), 
-        vmax=temperature_field.max(), 
-        caption='Temerature (℃)'
+        # vmin=temperature_field.min(), 
+        vmin=0, 
+        # vmax=temperature_field.max(), 
+        vmax=100, 
+        caption='Temerature (℉)'
     )
 
     # create_geotiff(latitudes=latitudes, longitudes=longitudes, temperature_field=temperature_field)
@@ -69,9 +71,9 @@ def main(x, y, temps):
 
 
 if __name__ == '__main__': 
-    from kriging_app.realtime_krig.prepare_grid import main as prepare_grid
-    from kriging_app.realtime_krig.extract_data import main as extract_data
-    from kriging_app.realtime_krig.kriging_interp import main as kriging_interp
+    # from kriging_app.realtime_krig.prepare_grid import main as prepare_grid
+    # from kriging_app.realtime_krig.extract_data import main as extract_data
+    from kriging_interp import main as kriging_interp
     # print("Prepare grid")
     # prepare_grid()
     # print("Extract data")
