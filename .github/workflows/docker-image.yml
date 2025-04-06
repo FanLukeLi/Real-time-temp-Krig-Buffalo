@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build and Push Docker Image
 
 on:
   push:
@@ -7,12 +7,20 @@ on:
     branches: [ "basic-kriging/kriging_app/*", "basic-app-pipe/kriging_app/*" ]
 
 jobs:
-
-  build:
-
+  build-and-push: 
     runs-on: ubuntu-latest
+    permissions: 
+      packages: write
+      contents: read
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag basic-kriging-app:$(date +%s)
+      - name: Log in to GHCR
+        run: echo docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository_owner }}/basic-krig-app:latest ./kriging_app
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.repository_owner }}/basic-krig-app:latest
