@@ -1,6 +1,6 @@
 resource "docker_image" "nginx" {
     name = "nginx:latest"
-    keep_locally = False
+    keep_locally = false
 }
 
 resource "docker_container" "nginx" {
