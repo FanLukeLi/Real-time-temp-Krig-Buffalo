@@ -4,7 +4,7 @@ import requests
 import json
 import datetime
 import geopandas as gpd
-from quixstreams import Application
+from kafka import KafkaProducer
 
 with open('./config.json', 'r') as f: 
     config = json.load(f)
@@ -38,7 +38,7 @@ def get_batch():
     mean_temp = temp_gdf[temp_gdf['temperature'] != float('inf')]['temperature'].mean()
     temp_gdf[temp_gdf['temperature']==float('inf')]['temperature'].apply(lambda x: mean_temp)
     temp_gdf[temp_gdf['temperature'].isna()]['temperature'].apply(lambda x: mean_temp)
-    return temp_gdf.to_json()
+    return temp_gdf
 
 
 def main(): 
@@ -49,12 +49,18 @@ def main():
 
     with app.get_producer() as producer: 
         while True: 
-            weather = get_batch()
+            temp_gdf = get_batch()
             logging.debug("Got weather")
+            for _, row in temp_gdf.iterrows(): 
+                producer.produce(
+                    topic = "temperature_data_buffalo", 
+                    key = "buffalo_ny", 
+                    value = row.to_json()
+                )
             producer.produce(
                 topic="temperature_data_buffalo", 
                 key="buffalo_ny", 
                 value=json.dumps(weather)
             )
             logging.info("Produced. Sleeping...")
-            time.sleep(10)
+            time.sleep(600)
