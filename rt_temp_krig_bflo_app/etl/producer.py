@@ -1,14 +1,13 @@
 import logging
-import time
-import requests
 import json
+import requests
 import datetime
 import geopandas as gpd
 from kafka import KafkaProducer
+from apscheduler.schedulers.background import BackgroundScheduler
 
-with open('./config.json', 'r') as f: 
+with open('./config.json', 'r') as f:
     config = json.load(f)
-
 
 def get_temp(x, y): 
     response = requests.get("https://api.open-meteo.com/v1/forecast", params={
@@ -20,47 +19,34 @@ def get_temp(x, y):
     return response.json()
 
 
-def get_batch(): 
+def main():
     buf_coords = gpd.read_file('./data/temp_request_grid.json')
-    n = buf_coords.shape[0]
-    temps = []
-    for i, coord in enumerate(buf_coords.geometry): 
-        try: 
-            res = get_temp(coord.x, coord.y)
-            temp = res['current']['temperature_2m']
-        except Exception as e: 
-            logging.debug(str(e.args))
-            temp = float('inf')
-        logging.debug(f"[{datetime.now().strftime(r'%d/%m/%Y %H:%M:%S')}]: {i+1} of {n}")
-        temps.append(temp)
-    buf_coords['temperature'] = temps
-    temp_gdf = buf_coords.to_crs(config['crs'])
-    mean_temp = temp_gdf[temp_gdf['temperature'] != float('inf')]['temperature'].mean()
-    temp_gdf[temp_gdf['temperature']==float('inf')]['temperature'].apply(lambda x: mean_temp)
-    temp_gdf[temp_gdf['temperature'].isna()]['temperature'].apply(lambda x: mean_temp)
-    return temp_gdf
+    producer = KafkaProducer(bootstrap_servers='localhost:9092')
+
+    def send_msgs():
+        id_prefix = datetime.datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
+        for i, coord in enumerate(buf_coords):
+            try:
+                res = get_temp(coord.x, coord.y)
+                temp = res['current']['temperature_2m']
+            except Exception as e:
+                logging.info(str(e))
+                temp = float('inf')
+            msg = {"id": f"{id_prefix}_{i}", "temperature": temp, "lon": coord.x, "lat": coord.y}
+            producer.send('temp_data_bflo', msg)
+        producer.send("latest_batch_id", {"batch_id": id_prefix})
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(send_msgs(), "interval", seconds=config['interval'])
+
+    try:
+        scheduler.start()
+    except Exception as e:
+        logging.info(f"Error occurred: {str(e)}")
+    finally:
+        producer.close()
 
 
-def main(): 
-    app = Application(
-        broker_address="localhost:9092", 
-        loglevel="DEBUG"
-    )
-
-    with app.get_producer() as producer: 
-        while True: 
-            temp_gdf = get_batch()
-            logging.debug("Got weather")
-            for _, row in temp_gdf.iterrows(): 
-                producer.produce(
-                    topic = "temperature_data_buffalo", 
-                    key = "buffalo_ny", 
-                    value = row.to_json()
-                )
-            producer.produce(
-                topic="temperature_data_buffalo", 
-                key="buffalo_ny", 
-                value=json.dumps(weather)
-            )
-            logging.info("Produced. Sleeping...")
-            time.sleep(600)
+if __name__ == "__main__":
+    logging.info("START")
+    main()

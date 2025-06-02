@@ -1,35 +1,25 @@
 import logging
-from quixstreams import Application
+from kafka import KafkaConsumer
 from pyspark.sql import SparkSession
-from pyspark import SparkContext
+from pyspark.sql.functions import col
 
 
 def main(): 
     logging.info("START")
-    app = Application(
-        broker_address="localhost:9092", 
-        loglevel="DEBUG", 
-
-        auto_offset_reset="latest", 
-        consumer_group="temperature_processor"
-    )
-
-    input_topic = app.topic("temperature_data_buffalo")
-    output_topic = app.topic("temperature_output")
-
-    sc = SparkContext(appName="MySparkApplication")
     spark = SparkSession.builder.appName('rt-krig-map').getOrCreate()
 
-    def spark_transform(): 
-        df = spark.readStream.format("kafka") \
-            .option("kafka.bootstrap.servers", "localhost:9092") \
-            .option("subscribe", "temperature_data_buffalo") \
-            .load()
-        logging.info(df.select(col("geometry")))
+    batch_id_df = spark.readStream.format("kafka") \
+        .option("kafka.bootstrap.servers", "localhost:9092") \
+        .option("subscribe", "temp_data_bflo") \
+        .option("startingOffsets", "latest") \
+        .load()
 
-    sdf = app.dataframe(input_topic)
-    sdf = sdf.apply(spark_transform)
-    sdf = sdf.to_topic(output_topic)
+    data_df = spark \
+        .readStream \
+        .format("kafka") \
+        .option("kafka.bootstrap.servers", "localhost:9092") \
+        .option("subscribe", "temp_data_bflo") \
+        .option("startingOffsets", "earliest") \
+        .load()
 
-    app.run(sdf)
-
+    data_df = data_df.join(batch_id_df, data_df.data_value.startwith(batch_id_df.batch_id))
