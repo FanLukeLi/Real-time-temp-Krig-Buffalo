@@ -32,9 +32,8 @@ def main():
             except Exception as e:
                 logging.info(str(e))
                 temp = float('inf')
-            msg = {"id": f"{id_prefix}_{i}", "temperature": temp, "lon": coord.x, "lat": coord.y}
+            msg = {id_prefix: f"{temp},{coord.y},{coord.x}"}
             producer.send('temp_data_bflo', msg)
-        producer.send("latest_batch_id", {"batch_id": id_prefix})
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(send_msgs(), "interval", seconds=config['interval'])
