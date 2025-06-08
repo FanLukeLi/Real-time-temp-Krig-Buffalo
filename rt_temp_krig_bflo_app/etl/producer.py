@@ -1,5 +1,7 @@
 import logging
 import json
+import time
+
 import requests
 import datetime
 import geopandas as gpd
@@ -21,29 +23,39 @@ def get_temp(x, y):
 
 def main():
     buf_coords = gpd.read_file('./data/temp_request_grid.json')
-    producer = KafkaProducer(bootstrap_servers='localhost:9092')
+    producer = KafkaProducer(
+        bootstrap_servers='localhost:9092',
+        value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    )
 
     def send_msgs():
         id_prefix = datetime.datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
-        for i, coord in enumerate(buf_coords):
+        for i, coord in buf_coords.iterrows():
+            x = coord.geometry.x
+            y = coord.geometry.x
             try:
-                res = get_temp(coord.x, coord.y)
+                res = get_temp(x, y)
                 temp = res['current']['temperature_2m']
             except Exception as e:
                 logging.info(str(e))
                 temp = float('inf')
-            msg = {id_prefix: f"{temp},{coord.y},{coord.x}"}
+            msg = {id_prefix: f"{temp},{x},{y}"}
+            print(msg)
             producer.send('temp_data_bflo', msg)
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(send_msgs(), "interval", seconds=config['interval'])
+    scheduler.add_job(send_msgs, "interval", seconds=config['interval'])
 
-    try:
-        scheduler.start()
-    except Exception as e:
-        logging.info(f"Error occurred: {str(e)}")
-    finally:
-        producer.close()
+    while True:
+        send_msgs()
+        time.sleep(300)
+
+    # try:
+    #     scheduler.start()
+    # except Exception as e:
+    #     logging.info(f"Error occurred: {str(e)}")
+    # finally:
+    #     producer.close()
 
 
 if __name__ == "__main__":
