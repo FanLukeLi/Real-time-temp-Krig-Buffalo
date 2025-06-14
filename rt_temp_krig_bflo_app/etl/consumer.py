@@ -1,3 +1,6 @@
+import os
+os.environ["HADOOP_HOME"] = "C:\\hadoop"
+
 import sys
 import logging
 import pandas as pd
@@ -6,7 +9,8 @@ from pyspark.sql import SparkSession
 
 def main(): 
     logging.info("START")
-    spark = SparkSession.builder.appName('rt-krig-map') \
+    spark = SparkSession.builder \
+        .appName("rt-krig-map") \
         .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
         .getOrCreate()
 
