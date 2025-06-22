@@ -1,5 +1,5 @@
 import os
-os.environ["HADOOP_HOME"] = "C:\\hadoop"
+os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-17-openjdk-amd64"
 
 import sys
 import logging
@@ -11,11 +11,14 @@ def main():
     logging.info("START")
     spark = SparkSession.builder \
         .appName("rt-krig-map") \
-        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0") \
+        .master("spark://spark:7077") \
+        .config("spark.executor.memory", "1g") \
+        .config("spark.driver.memory", "512m") \
+        .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.13:3.5.0") \
         .getOrCreate()
 
     data_df = spark.read.format("kafka") \
-        .option("kafka.bootstrap.servers", "localhost:9092") \
+        .option("kafka.bootstrap.servers", "kafka:9092") \
         .option("subscribe", "temp_data_bflo") \
         .load() \
         .selectExpr("CAST(value AS STRING) as raw_data", "CAST(key AS STRING) as batch_id")
