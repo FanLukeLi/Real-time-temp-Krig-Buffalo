@@ -34,13 +34,20 @@ services:
 
   spark:
     image: bitnami/spark:latest
+    build:
+      context: ./
     depends_on:
       - kafka
     environment:
       - SPARK_MODE=master
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=8g
+      - SPARK_WORKER_CORES=4
     ports:
       - "7077:7077"
       - "8081:8081"
+      - "4041:4041"
+      - "4042:4042"
     volumes:
       - spark-data:/opt/spark/work-dir
 
@@ -72,8 +79,8 @@ services:
       - ./:/home/rt_temp_krig_bflo_app
     working_dir: /home/rt_temp_krig_bflo_app
     command: ["tail", "-f", "/dev/null"]
-    environment:
-      - export PYTHONPATH=/opt/bitnami/spark/python
+#    environment:
+#      - PYTHONPATH=/opt/bitnami/spark/python:/opt/spark/python/lib/py4j-0.10.9.9-src.zip
 
 volumes:
   kafka-data:

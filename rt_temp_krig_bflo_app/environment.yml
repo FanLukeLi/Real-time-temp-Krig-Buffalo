@@ -16,3 +16,5 @@ dependencies:
   - gunicorn
   - kafka-python
   - apscheduler
+  - openjdk=17.0.15
+  - pyspark=4.0.0
