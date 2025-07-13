@@ -1,25 +1,34 @@
 import os
 os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-17-openjdk-amd64"
 
-import sys
 import logging
-import pandas as pd
+import json
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, split
 from kafka import KafkaConsumer
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+
+with open('./config.json', 'r') as f:
+    config = json.load(f)
 
 
 def main():
     logging.info("START")
     spark = SparkSession.builder \
         .appName("rt-krig-map") \
-        .master("spark://spark:7077") \
+        .master("spark://spark-master:7077") \
         .config("spark.driver.port", "4041") \
         .config("spark.blockManager.port", "4042") \
         .config("spark.driver.bindAddress", "0.0.0.0") \
         .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.0") \
         .getOrCreate()
-        # .config("spark.executor.memory", "4g") \
-        # .config("spark.driver.memory", "4g") \
+
+    spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
 
     consumer = KafkaConsumer(
         'batch_end_mark',
@@ -31,7 +40,8 @@ def main():
     )
 
     for message in consumer:
-        id_prefix = message.value
+        id_prefix = message.value.decode('utf-8').strip('""')
+        logging.info(f"id_prefix: {id_prefix}")
         data_df = spark.read.format("kafka") \
             .option("kafka.bootstrap.servers", "kafka:9092") \
             .option("subscribe", "temp_data_bflo") \
@@ -39,7 +49,15 @@ def main():
             .selectExpr("CAST(value AS STRING) as raw_data", "CAST(key AS STRING) as batch_id") \
             .filter(f"batch_id = '{id_prefix}'")
 
-        print(data_df)
+        data_df.repartition(4)
+        data_df.persist()
+        data_df = data_df.withColumn("temperature", split(col("raw_data"), ",").getItem(0)) \
+                        .withColumn("longitude", split(col("raw_data"), ",").getItem(1)) \
+                        .withColumn("latitude", split(col("raw_data"), ",").getItem(2)) \
+                        .select("temperature", "longitude", "latitude")
+        data_df.show()
+        pdf = data_df.toPandas()
+        logging.info(pdf.shape)
 
 
 if __name__ == '__main__':

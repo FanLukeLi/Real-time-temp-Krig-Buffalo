@@ -10,6 +10,8 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
       - ./data/zookeeper:/bitnami/zookeeper
+    networks:
+      - spark-network
 
   kafka:
     image: bitnami/kafka:latest
@@ -31,25 +33,57 @@ services:
       - zookeeper
     volumes:
       - ./data/kafka:/bitnami/kafka
+    networks:
+      - spark-network
 
-  spark:
+#  spark:
+#    image: bitnami/spark:latest
+#    build:
+#      context: ./
+#    depends_on:
+#      - kafka
+#    environment:
+#      - SPARK_MODE=master
+#      - SPARK_MASTER_URL=spark://spark:7077
+#      - SPARK_WORKER_MEMORY=2g
+#      - SPARK_WORKER_CORES=2
+#    ports:
+#      - "7077:7077"
+#      - "8081:8081"
+#      - "4041:4041"
+#      - "4042:4042"
+#    volumes:
+#      - spark-data:/opt/spark/work-dir
+
+  spark-master:
     image: bitnami/spark:latest
-    build:
-      context: ./
-    depends_on:
-      - kafka
     environment:
       - SPARK_MODE=master
-      - SPARK_MASTER_URL=spark://spark:7077
-      - SPARK_WORKER_MEMORY=8g
-      - SPARK_WORKER_CORES=4
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2g
+      - SPARK_WORKER_CORES=2
     ports:
-      - "7077:7077"
-      - "8081:8081"
-      - "4041:4041"
-      - "4042:4042"
-    volumes:
-      - spark-data:/opt/spark/work-dir
+      - "8081:8081"  # Spark master UI
+      - "7077:7077"  # Spark master RPC
+    command: ["/opt/bitnami/scripts/spark/run.sh"]
+    networks:
+      - spark-network
+
+  spark-worker:
+    image: bitnami/spark:latest
+    environment:
+        - SPARK_MODE=worker
+        - SPARK_MASTER_URL=spark://spark-master:7077
+        - SPARK_WORKER_MEMORY=2g
+        - SPARK_WORKER_CORES=2
+    ports:
+      - "8082:8082"
+      - "4040:4040"
+    depends_on:
+      - spark-master
+    command: [ "/opt/bitnami/scripts/spark/run.sh" ]
+    networks:
+      - spark-network
 
   hadoop-namenode:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
@@ -79,6 +113,8 @@ services:
       - ./:/home/rt_temp_krig_bflo_app
     working_dir: /home/rt_temp_krig_bflo_app
     command: ["tail", "-f", "/dev/null"]
+    networks:
+      - spark-network
 #    environment:
 #      - PYTHONPATH=/opt/bitnami/spark/python:/opt/spark/python/lib/py4j-0.10.9.9-src.zip
 
@@ -87,3 +123,7 @@ volumes:
   spark-data:
   hadoop-namenode:
   hadoop-datanode:
+
+networks:
+  spark-network:
+    driver: bridge
