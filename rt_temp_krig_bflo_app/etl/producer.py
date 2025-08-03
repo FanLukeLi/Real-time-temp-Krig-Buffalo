@@ -1,6 +1,6 @@
 import logging
 import json
-import time
+import signal
 
 import requests
 import datetime
@@ -24,16 +24,17 @@ def create_topics():
         client_id='producer-admin'
     )
 
-    topics = [
-        NewTopic(name='temp_data_bflo', num_partitions=1, replication_factor=1),
-        NewTopic(name='batch_end_mark', num_partitions=1, replication_factor=1)
-    ]
-
     try:
+        logging.info("Creating topics if they do not exist...")
         existing_topics = admin_client.list_topics()
-        topics_to_add = [topic for topic in ['temp_data_bflo', 'batch_end_mark'] if topic not in existing_topics]
-        admin_client.create_topics(new_topics=topics_to_add, validate_only=False)
-        logging.info("Topics created successfully. ")
+        topics_to_add = [NewTopic(name=topic, num_partitions=1, replication_factor=1)
+                         for topic in ['temp_data_bflo', 'batch_end_mark']
+                         if topic not in existing_topics]
+        if topics_to_add:
+            admin_client.create_topics(new_topics=topics_to_add, validate_only=False)
+            logging.info(f"Created topics: {[topic.name for topic in topics_to_add]}")
+        else:
+            logging.info("No new topics to create.")
     except Exception as e:
         logging.warning(f"Error creating topics: {e}")
     finally:
@@ -52,7 +53,7 @@ def get_temp(x, y):
 def main():
     producer = None
     try:
-        # create_topics()
+        create_topics()
         buf_coords = gpd.read_file('./data/temp_request_grid.json')
         producer = KafkaProducer(
             bootstrap_servers='kafka:9092',
@@ -62,6 +63,7 @@ def main():
 
         def send_msgs():
             id_prefix = datetime.datetime.now().strftime("%Y:%m:%d:%H:%M:%S")
+            nrows = buf_coords.shape[0]
             for i, coord in buf_coords.iterrows():
                 x = coord.geometry.x
                 y = coord.geometry.y
@@ -71,12 +73,12 @@ def main():
                 except Exception as e:
                     logging.info(str(e))
                     temp = float('inf')
-                logging.info(f"Batch id {id_prefix}: {temp}, {x}, {y}")
+                logging.info(f"Batch id {id_prefix} {i+1} in {nrows}: {temp}, {x}, {y}")
                 if id_prefix:
                     producer.send(
                         topic='temp_data_bflo',
                         key=id_prefix,
-                        value=f"{temp},{x},{y}"
+                        value={"temperature": temp, "longitude": x, "latitude": y}
                     )
             producer.send(topic='batch_end_mark', key=id_prefix, value=id_prefix)
 
@@ -84,21 +86,22 @@ def main():
         scheduler.add_job(send_msgs, "interval",
                           seconds=config['interval'],
                           id='send_temp_data_job',
-                          replace_existing=True)
+                          next_run_time=datetime.datetime.now())
 
-        # scheduler.start()
-        # logging.info("Scheduler started successfully.")
-        # logging.getLogger('apscheduler.executors.default').setLevel(logging.INFO)
-        while True:
-            send_msgs()
-            time.sleep(300)
+        scheduler.start()
+        logging.info("Scheduler started successfully.")
+        logging.getLogger('apscheduler.executors.default').setLevel(logging.INFO)
+        # while True:
+        #     send_msgs()
+        #     time.sleep(300)
+        signal.pause()
     except Exception as e:
         logging.error(f"Error during initialization: {e}")
         return
     finally:
         if producer:
+            logging.info("Closing producer...")
             producer.close()
-            logging.info("Kafka producer closed.")
 
 
 if __name__ == "__main__":

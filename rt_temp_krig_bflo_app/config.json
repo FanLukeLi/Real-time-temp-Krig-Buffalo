@@ -17,5 +17,6 @@
     "min_points": 5, 
     "max_points": 15, 
     "mode": "exact", 
-    "interval": 600
+    "interval": 300,
+    "html_file_path": "homepage.html"
 }
