@@ -18,5 +18,7 @@
     "max_points": 15, 
     "mode": "exact", 
     "interval": 300,
-    "html_file_path": "homepage.html"
+    "html_file_path": "homepage.html",
+    "raster_map_path": "./result/raster_map.html",
+    "buffer_size": 10
 }

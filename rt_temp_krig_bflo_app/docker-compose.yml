@@ -29,31 +29,17 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_CFG_LOG_DIRS=/bitnami/kafka/data
       - ALLOW_PLAINTEXT_LISTENER=yes
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     depends_on:
       - zookeeper
     volumes:
       - ./data/kafka:/bitnami/kafka
     networks:
       - spark-network
-
-#  spark:
-#    image: bitnami/spark:latest
-#    build:
-#      context: ./
-#    depends_on:
-#      - kafka
-#    environment:
-#      - SPARK_MODE=master
-#      - SPARK_MASTER_URL=spark://spark:7077
-#      - SPARK_WORKER_MEMORY=2g
-#      - SPARK_WORKER_CORES=2
-#    ports:
-#      - "7077:7077"
-#      - "8081:8081"
-#      - "4041:4041"
-#      - "4042:4042"
-#    volumes:
-#      - spark-data:/opt/spark/work-dir
 
   spark-master:
     image: bitnami/spark:latest
@@ -93,6 +79,8 @@ services:
       - hadoop-namenode:/hadoop/dfs/name
     ports:
       - "9870:9870"
+    networks:
+      - spark-network
 
   hadoop-datanode:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
@@ -100,23 +88,34 @@ services:
       - hadoop-namenode
     environment:
       - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://hadoop-namenode:8020
+      - HDFS_CONF_dfs_replication=1
     volumes:
       - hadoop-datanode:/hadoop/dfs/data
     ports:
       - "9864:9864"
+    networks:
+        - spark-network
 
   miniconda:
     build:
       context: ./
       dockerfile: Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
     volumes:
       - ./:/home/rt_temp_krig_bflo_app
     working_dir: /home/rt_temp_krig_bflo_app
-    command: ["tail", "-f", "/dev/null"]
+#    command: ["tail", "-f", "/dev/null"]
+    command: ["conda", "run", "-n", "rtkrig", "flask", "run", "--host=0.0.0.0", "--port=5000"]
     networks:
-      - spark-network
-#    environment:
-#      - PYTHONPATH=/opt/bitnami/spark/python:/opt/spark/python/lib/py4j-0.10.9.9-src.zip
+      spark-network:
+        aliases:
+          - miniconda-host
+    ports:
+      - "5000:5000"
+    hostname: miniconda-host
 
 volumes:
   kafka-data:
